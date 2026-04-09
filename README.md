@@ -1,7 +1,7 @@
 
 # Scientify for TRAE v3.2.0
 
-✨ **TRAE IDE 专属优化版** | 基于官方Scientify v3.2.0，（https://github.com/tsingyuai/scientify）新增独家**硬件自动适配功能**，根据电脑配置智能选择最优实验策略！
+✨ **TRAE IDE 专属优化版** | 本项目基于https://github.com/tsingyuai/scientify，官方Scientify v3.2.0，新增独家**硬件自动适配功能**，根据电脑配置智能选择最优实验策略！
 
 Scientify 是一个端到端的 AI 科研工作流自动化工具，帮你完成从文献调研到论文写作的全流程。
 
