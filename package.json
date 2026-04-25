@@ -4,6 +4,9 @@
   "description": "Scientify - AI-powered research workflow automation for TRAE IDE. Exclusive hardware auto-adaptation feature included.",
   "type": "module",
   "main": "./dist/index.js",
+  "bin": {
+    "scientify-mcp": "./dist/mcp-server.js"
+  },
   "trae": {
     "skills": "./skills"
   },
@@ -33,6 +36,8 @@
     "typescript": "^5.3.0"
   },
   "dependencies": {
-    "@sinclair/typebox": "^0.34.49"
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@sinclair/typebox": "^0.34.49",
+    "fast-xml-parser": "^5.7.2"
   }
 }

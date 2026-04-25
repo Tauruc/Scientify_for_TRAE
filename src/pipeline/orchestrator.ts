@@ -1,7 +1,7 @@
 
-import { DEFAULT_PIPELINE_PHASES } from './phases';
-import { loadPipelineState, savePipelineState, createInitialState, checkPhaseCompleted } from './state';
-import { PipelineState } from '../types';
+import { DEFAULT_PIPELINE_PHASES } from './phases.js';
+import { loadPipelineState, savePipelineState, createInitialState, checkPhaseCompleted } from './state.js';
+import { PipelineState } from '../types.js';
 
 export class PipelineOrchestrator {
   private workdir: string;

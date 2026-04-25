@@ -1,3 +1,4 @@
+import { XMLParser } from 'fast-xml-parser';
 export async function searchArxiv(query, maxResults = 30) {
     const papers = [];
     const encodedQuery = encodeURIComponent(query);
@@ -6,43 +7,39 @@ export async function searchArxiv(query, maxResults = 30) {
         console.log(`Searching arXiv for: ${query}`);
         const response = await fetch(url);
         const text = await response.text();
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(text, 'text/xml');
-        const entries = xml.getElementsByTagName('entry');
-        for (let i = 0; i < entries.length; i++) {
-            const entry = entries[i];
-            const idElement = entry.getElementsByTagName('id')[0];
-            const titleElement = entry.getElementsByTagName('title')[0];
-            const summaryElement = entry.getElementsByTagName('summary')[0];
-            const publishedElement = entry.getElementsByTagName('published')[0];
-            const authorElements = entry.getElementsByTagName('author');
-            const linkElements = entry.getElementsByTagName('link');
-            const id = idElement?.textContent || '';
+        const parser = new XMLParser({
+            ignoreAttributes: false,
+            attributeNamePrefix: '@_'
+        });
+        const parsed = parser.parse(text);
+        const feed = parsed.feed || {};
+        const entries = feed.entry || [];
+        // 确保 entries 是数组
+        const entryArray = Array.isArray(entries) ? entries : entries ? [entries] : [];
+        for (const entry of entryArray) {
+            const id = entry.id || '';
             const arxivId = id.replace('http://arxiv.org/abs/', '').replace('https://arxiv.org/abs/', '');
-            const authors = [];
-            for (let j = 0; j < authorElements.length; j++) {
-                const nameElement = authorElements[j].getElementsByTagName('name')[0];
-                if (nameElement?.textContent) {
-                    authors.push(nameElement.textContent);
-                }
-            }
-            const year = publishedElement?.textContent
-                ? new Date(publishedElement.textContent).getFullYear()
+            const authors = Array.isArray(entry.author)
+                ? entry.author.map((a) => a.name)
+                : entry.author ? [entry.author.name] : [];
+            const year = entry.published
+                ? new Date(entry.published).getFullYear()
                 : undefined;
+            // 获取 PDF 链接
             let pdfUrl = '';
-            for (let j = 0; j < linkElements.length; j++) {
-                const rel = linkElements[j].getAttribute('rel');
-                const href = linkElements[j].getAttribute('href');
-                if (rel === 'alternate' && href) {
-                    pdfUrl = href.replace('abs', 'pdf') + '.pdf';
+            const links = Array.isArray(entry.link) ? entry.link : entry.link ? [entry.link] : [];
+            for (const link of links) {
+                if (link['@_rel'] === 'alternate' && link['@_href']) {
+                    pdfUrl = link['@_href'].replace('abs', 'pdf') + '.pdf';
+                    break;
                 }
             }
             papers.push({
                 id: arxivId,
                 arxivId: arxivId,
-                title: titleElement?.textContent?.trim() || '',
+                title: entry.title?.trim() || '',
                 authors,
-                abstract: summaryElement?.textContent?.trim(),
+                abstract: entry.summary?.trim(),
                 year,
                 pdfUrl,
                 sourceUrl: `https://arxiv.org/abs/${arxivId}`

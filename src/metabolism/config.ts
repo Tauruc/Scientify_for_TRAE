@@ -1,5 +1,5 @@
 
-import { MetabolismConfig } from './types';
+import { MetabolismConfig } from './types.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 

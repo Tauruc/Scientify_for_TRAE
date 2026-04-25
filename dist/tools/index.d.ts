@@ -1,5 +1,5 @@
-export { searchArxiv } from './arxiv-search';
-export { searchOpenAlex } from './openalex-search';
-export { downloadPaper } from './paper-download';
-export { detectHardware, getOptimalExperimentConfig, generateHardwareReport } from './hardware-check';
-export type { HardwareInfo, ExperimentConfig } from './hardware-check';
+export { searchArxiv } from './arxiv-search.js';
+export { searchOpenAlex } from './openalex-search.js';
+export { downloadPaper } from './paper-download.js';
+export { detectHardware, getOptimalExperimentConfig, generateHardwareReport } from './hardware-check.js';
+export type { HardwareInfo, ExperimentConfig } from './hardware-check.js';

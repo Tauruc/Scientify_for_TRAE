@@ -1,4 +1,4 @@
-import { runDailyHeartbeat } from './heartbeat';
+import { runDailyHeartbeat } from './heartbeat.js';
 let heartbeatInterval = null;
 export function startScheduler(workdir, intervalHours = 24) {
     if (heartbeatInterval) {

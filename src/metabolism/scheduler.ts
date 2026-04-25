@@ -1,5 +1,5 @@
 
-import { runDailyHeartbeat } from './heartbeat';
+import { runDailyHeartbeat } from './heartbeat.js';
 
 let heartbeatInterval: NodeJS.Timeout | null = null;
 

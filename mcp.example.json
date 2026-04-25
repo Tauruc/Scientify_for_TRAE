@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "scientify-tools": {
+      "command": "scientify-mcp",
+      "args": [],
+      "env": {}
+    }
+  }
+}

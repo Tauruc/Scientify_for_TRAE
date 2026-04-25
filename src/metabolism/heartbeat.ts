@@ -1,6 +1,6 @@
 
-import { loadMetabolismConfig, saveMetabolismConfig } from './config';
-import { searchArxiv, searchOpenAlex, downloadPaper } from '../tools';
+import { loadMetabolismConfig, saveMetabolismConfig } from './config.js';
+import { searchArxiv, searchOpenAlex, downloadPaper } from '../tools/index.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
