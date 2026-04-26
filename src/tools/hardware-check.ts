@@ -80,11 +80,12 @@ export async function detectHardware(): Promise<HardwareInfo> {
   let availableStorageGB = 0;
   try {
     if (process.platform === 'win32') {
-      const drive = cwd.split(':')[0] + ':';
-      const fsutilOutput = execSync(`fsutil volume diskfree ${drive}`, { encoding: 'utf8' });
-      const freeBytesMatch = fsutilOutput.match(/可用的空闲字节数\s*:\s*(\d+)/) || fsutilOutput.match(/Total free bytes\s*:\s*(\d+)/);
-      if (freeBytesMatch) {
-        availableStorageGB = Math.round(parseInt(freeBytesMatch[1]) / 1024 / 1024 / 1024);
+      const drive = cwd.split(':')[0];
+      // 使用 PowerShell 获取磁盘空间，避免编码问题
+      const powershellOutput = execSync(`powershell -Command "(Get-PSDrive -Name '${drive}').Free"`, { encoding: 'utf8' });
+      const freeBytes = parseInt(powershellOutput.trim());
+      if (!isNaN(freeBytes)) {
+        availableStorageGB = Math.round(freeBytes / 1024 / 1024 / 1024);
       }
     } else {
       const dfOutput = execSync(`df -B1G ${cwd} | tail -1`, { encoding: 'utf8' });
