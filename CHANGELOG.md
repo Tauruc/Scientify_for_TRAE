@@ -5,6 +5,22 @@
 
 ---
 
+## [v3.2.1] - 2026-06-05
+
+### 🐛 Bug 修复
+
+#### OpenAlex 搜索缺少摘要
+- **问题**: OpenAlex 搜索结果返回的论文没有摘要内容
+- **原因**: OpenAlex API 不返回 `abstract` 字段，而是返回 `abstract_inverted_index`（倒排索引格式），原代码直接读取了不存在的 `work.abstract`
+- **修复**: 新增 `parseInvertedIndex()` 函数，将倒排索引 `{ "word": [pos1, pos2] }` 还原为可读文本
+- **文件**: `src/tools/openalex-search.ts`
+
+### ✅ 验证结果
+- ✅ OpenAlex 搜索现在返回完整摘要
+- ✅ MCP Server 工具调用正常
+
+---
+
 ## [v3.2.0] - 2026-04-26
 
 ### 🎯 主要改动
