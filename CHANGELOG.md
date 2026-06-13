@@ -5,6 +5,41 @@
 
 ---
 
+## [v3.2.2] - 2026-06-13
+
+### 🐛 Bug 修复
+
+#### 论文下载只获取 PDF 而非 LaTeX 源文件
+- **问题**: 下载工具返回 PDF，AI 无法阅读论文源码（公式、表格等难以提取）
+- **原因**: `paper-download.ts` 使用了错误的 arXiv URL（`/src/` → 应改为 `/e-print/`）
+- **修复**: 将下载 URL 改为 `https://arxiv.org/e-print/{id}`，优先下载 LaTeX 源文件包
+- **文件**: `src/tools/paper-download.ts`
+
+#### .tar.gz 源文件不解压
+- **问题**: 下载 LaTeX 源文件后，`.tar.gz` 压缩包未自动解压
+- **修复**: 新增 `tar -xzf` 自动解压逻辑，解压后删除压缩包保留源码目录
+- **文件**: `src/tools/paper-download.ts`
+
+### 📚 Skill 更新
+
+#### research-implement：强制模块化 + 免重复编码
+- **新增 Step 3**: 写代码前先 `grep` 搜索 `project/` 已有模块
+- **强制规则**: 已有模块直接 import，禁止重复编写；入口文件不写算法逻辑
+- **增量修复**: 某步骤报错只修改对应模块并重试该步骤，不全量重跑
+- **文件**: `.trae/skills/research-implement/SKILL.md`
+
+#### research-experiment：增量运行 + checkpoint
+- **强制 checkpoint**: 训练命令添加 `--save-checkpoint`，中断时从断点继续
+- **增量修复规则**: 消融/补充实验报错不重跑 full training
+- **复用现有模块**: 消融实验通过修改参数实现，禁止新建重复脚本
+- **文件**: `.trae/skills/research-experiment/SKILL.md`
+
+### ✅ 验证结果
+- ✅ 论文下载改为 LaTeX 源文件 + 自动解压
+- ✅ Skill prompt 更新完毕
+
+---
+
 ## [v3.2.1] - 2026-06-05
 
 ### 🐛 Bug 修复
@@ -16,7 +51,7 @@
 - **文件**: `src/tools/openalex-search.ts`
 
 ### ✅ 验证结果
-- ✅ OpenAlex 搜索现在返回完整摘要
+- ✅ OpenAlex 搜索返回完整摘要
 - ✅ MCP Server 工具调用正常
 
 ---

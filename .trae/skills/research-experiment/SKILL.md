@@ -57,7 +57,7 @@ console.log('✅ 硬件检测完成，已生成配置报告 hardware_config.md')
 
 ---
 
-### Step 1: Full Training
+### Step 1: Full Training（带 Checkpoint）
 
 根据硬件检测结果调整训练参数：
 - 使用自动推荐的 batch size: `--batch-size ${config.batchSize}`
@@ -67,10 +67,17 @@ console.log('✅ 硬件检测完成，已生成配置报告 hardware_config.md')
 - 数据加载线程数: `--num-workers ${config.numWorkers}`
 - 限制最大样本数: `--max-train-samples ${config.maxTrainSamples} --max-val-samples ${config.maxValSamples}`
 
+**必须启用模型 checkpoint 保存**，以便后续步骤报错时无需从零重跑：
+
 ```bash
 cd project && source .venv/bin/activate
-python3 run.py --batch-size ${config.batchSize} --epochs ${config.epochs.full} --mixed-precision ${config.mixedPrecision} --gradient-accumulation ${config.gradientAccumulationSteps} --num-workers ${config.numWorkers} --max-train-samples ${config.maxTrainSamples} --max-val-samples ${config.maxValSamples}
+python3 run.py --batch-size ${config.batchSize} --epochs ${config.epochs.full} --mixed-precision ${config.mixedPrecision} --gradient-accumulation ${config.gradientAccumulationSteps} --num-workers ${config.numWorkers} --max-train-samples ${config.maxTrainSamples} --max-val-samples ${config.maxValSamples} --save-checkpoint
 ```
+
+**如果训练过程中报错：**
+- 只修复报错部分的代码（通常是一个子模块），不从 Step 0 重跑
+- 如果 checkpoint 已保存，从断点继续训练，代码修改不重跑已完成的 epoch
+- 如果 OOM 等硬件错误，调整 batch_size 后只重新运行训练命令
 
 记录完整训练的 `[RESULT]` 输出。
 
@@ -212,7 +219,10 @@ python3 run.py --experiment {exp_name}
 1. Full training 只改 epoch 数，不改代码逻辑
 2. 所有数值必须来自真实执行输出
 3. 消融实验至少做 2 个
-4. 如果 full training 失败（OOM 等），调整 batch_size 后重试，不要跳过
-5. **补充实验迭代必须做 2 轮（Novix Exp Analyzer 机制）** — 第 1 轮针对初始结果，第 2 轮针对补充实验结果
-6. 补充实验不改核心算法，只改实验配置/参数/可视化代码
-7. Every headline metric must include a baseline, and every main conclusion must point back to real outputs or figure files
+4. **增量修复，不全量重跑。** 如果 Step 3（消融）报错，从 Step 2 开始调整，不要从 Step 1 full training 重跑
+5. **Full training 启用 checkpoint（`--save-checkpoint`）。** 训练中断时从断点继续，不浪费已完成的计算
+6. 如果 full training 失败（OOM 等），调整 batch_size 后重试，不要跳过
+7. **补充实验迭代必须做 2 轮（Novix Exp Analyzer 机制）** — 第 1 轮针对初始结果，第 2 轮针对补充实验结果
+8. 补充实验不改核心算法，只改实验配置/参数/可视化代码
+9. Every headline metric must include a baseline, and every main conclusion must point back to real outputs or figure files
+10. **复用已写模块。** 补充实验和消融实验通过修改参数或注释组件来实现，禁止新建重复脚本
