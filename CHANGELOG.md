@@ -5,6 +5,32 @@
 
 ---
 
+## [v3.2.3] - 2026-06-24
+
+### 📚 Skill 更新
+
+#### research-collect：强制 MCP 工具调用 + LaTeX 源文件校验
+
+- **问题**: AI 执行 research-collect 时自行上网搜索/下载，仅获取 PDF 而非 LaTeX 源文件
+- **原因**: SKILL.md 将工具调用写为伪代码（`arxiv_search({...})`），AI 直接忽略自己上网
+- **修复**:
+  - Phase 2.1 搜索改为显式 `run_mcp(scientify-tools, arxiv_search)` 调用
+  - Phase 2.3 下载改为显式 `run_mcp(scientify-tools, paper_download)` 调用
+  - Web 搜索/下载降级为补充手段（仅 MCP 失败后使用）
+  - **新增 3 道 Quality Gate**：每篇下载后校验 `.tex` 文件存在性
+    - Gate 1: 单篇论文下载后立即 `ls *.tex`，无则重新下载
+    - Gate 2: 每个检索词 ≥80% 论文须有 `.tex`
+    - Gate 3: Phase 4 结束时全量 LaTeX 覆盖率审计
+  - Phase 4.3 新增最终 `.tex` 审计脚本
+  - survey_report.md 必须包含 LaTeX 覆盖率
+  - Tools 表格改为具体 `run_mcp(...)` 指令格式，标注强制/补充
+- **文件**: `.trae/skills/research-collect/SKILL.md`
+
+### ✅ 验证结果
+- ✅ Skill prompt 更新完毕（待实际运行验证）
+
+---
+
 ## [v3.2.2] - 2026-06-13
 
 ### 🐛 Bug 修复
