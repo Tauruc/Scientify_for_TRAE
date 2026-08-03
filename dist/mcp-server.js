@@ -132,12 +132,25 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
                 arxivId: arxiv_id,
                 doi,
             };
-            const path = await downloadPaper(paper, target_dir);
+            const result = await downloadPaper(paper, target_dir);
+            let message;
+            if (!result) {
+                message = 'Download failed: Unable to retrieve paper from any source (tried LaTeX source and PDF fallback).';
+            }
+            else if (result.startsWith('tex:')) {
+                message = `LaTeX source downloaded and extracted to: ${result.slice(4)}`;
+            }
+            else if (result.startsWith('pdf:')) {
+                message = `PDF downloaded to: ${result.slice(4)} (LaTeX source not available for this paper)`;
+            }
+            else {
+                message = `Downloaded to: ${result}`;
+            }
             return {
                 content: [
                     {
                         type: 'text',
-                        text: path ? `Successfully downloaded to: ${path}` : 'Download failed: Unable to retrieve paper',
+                        text: message,
                     },
                 ],
             };

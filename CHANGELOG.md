@@ -5,6 +5,35 @@
 
 ---
 
+## [v3.2.4] - 2026-08-03
+
+### 🐛 Bug 修复
+
+#### paper_download 工具报告虚假成功
+- **问题**: 什么都没下载也返回 `Successfully downloaded to: papers/xxxxx`
+- **原因**:
+  1. arXiv e-print 端点在无 LaTeX 源时重定向到 PDF，MIME type `application/pdf` 通过了泛用的 `includes('application')` 检查，PDF 内容被误存为 `.tar.gz` 后解压失败
+  2. 解压失败后代码仍返回空目录路径，MCP Server 对所有非 null 返回值一律输出 "Successfully"
+- **修复**:
+  - MIME type 检查改为精确匹配 tar/gzip 类型（不再匹配 `application/pdf`）
+  - 增加防御：响应体 < 100 字节跳过、解压后无 `.tex` 文件视为失败并清理目录
+  - 返回值改为带前缀格式：`tex:{path}` / `pdf:{path}` / `null`
+  - MCP Server 根据前缀输出不同消息，明确告知是 LaTeX 源文件还是 PDF
+- **文件**: `src/tools/paper-download.ts`、`src/mcp-server.ts`
+
+### 📚 文档更新
+
+#### README 去 AI 味（humanizer-zh）
+- 移除装饰性 emoji、宣传性语言（"独家""专属""智能最优"等）
+- 简化填充短语和过度强调的表达
+- 许可证说明去冗余，改为平实措辞
+- **文件**: `README.md`
+
+### ✅ 验证结果
+- ✅ paper-download 编译通过，不再返回虚假成功
+
+---
+
 ## [v3.2.3] - 2026-06-24
 
 ### 📚 Skill 更新
@@ -225,5 +254,6 @@
 
 ---
 
-**最后更新**: 2026-04-26  
-**当前版本**: v3.2.0  
+**最后更新**: 2026-08-03  
+**当前版本**: v3.2.4  
+**维护者**: AI Assistant & User
