@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import * as path from 'path';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -11,7 +12,7 @@ import type { Paper } from './types.js';
 const server = new Server(
   {
     name: 'scientify-tools',
-    version: '3.2.0',
+    version: '3.2.5',
   },
   {
     capabilities: {
@@ -134,11 +135,17 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     }
 
     if (name === 'paper_download') {
-      const { arxiv_id, doi, target_dir = 'papers' } = args as { 
+      let { arxiv_id, doi, target_dir = 'papers' } = args as { 
         arxiv_id?: string; 
         doi?: string; 
         target_dir?: string 
       };
+      
+      // 尝试从环境变量获取工作区路径，使相对路径下载到项目目录
+      // TRAE 中可配置 env: { "TRAE_WORKSPACE_DIR": "${workspaceFolder}" }
+      if (!path.isAbsolute(target_dir) && process.env.TRAE_WORKSPACE_DIR) {
+        target_dir = path.join(process.env.TRAE_WORKSPACE_DIR, target_dir);
+      }
       
       if (!arxiv_id && !doi) {
         throw new Error('Either arxiv_id or doi must be provided');

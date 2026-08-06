@@ -5,6 +5,51 @@
 
 ---
 
+## [v3.2.5] - 2026-08-06
+
+### 🐛 Bug 修复
+
+#### paper_download 下载"成功"仍是虚假——PDF 路径未验证内容
+- **问题**: v3.2.4 修复了 tar 路径的撒谎问题，但 PDF 降级路径仍可能存下非 PDF 内容（arXiv 限流返回的 HTML 错误页，HTTP 200）
+- **原因**: PDF 下载路径未检查 content-type 和 PDF 魔数（`%PDF-`），任何 HTTP 200 响应都被当作有效 PDF 保存
+- **修复**:
+  - 新增 `isPdfBuffer()` 函数：验证 buffer 前 5 字节为 `%PDF-` 魔数
+  - PDF 降级路径：同时检查 content-type `application/pdf` + PDF 魔数，缺一不可
+  - 外部 PDF 路径：同样增加双重验证
+  - 最小大小阈值从 100 字节提高到 512 字节（PDF 头部结构至少几百字节）
+- **文件**: `src/tools/paper-download.ts`
+
+#### paper_download 文件散落到用户目录——MCP CWD 未设为工作区
+- **问题**: 传入相对路径 `papers` 时，文件下载到 `C:\Users\...\papers` 而非项目目录
+- **原因**: MCP Server 进程的 CWD 是用户主目录
+- **修复**:
+  - `mcp-server.ts`：新增 `import path`，在 handler 中读取 `TRAE_WORKSPACE_DIR` 环境变量，将相对路径拼接到工作区路径下
+  - `mcp.example.json` / `README.md`：配置改为通过 `env` 传入 `${workspaceFolder}`
+- **文件**: `src/mcp-server.ts`、`mcp.example.json`、`README.md`
+
+### ⚠️ 需要用户操作
+
+**更新 TRAE 的 MCP 配置**，将 scientify-tools 的 `env` 改为：
+
+```json
+"scientify-tools": {
+  "command": "scientify-mcp",
+  "args": [],
+  "env": {
+    "TRAE_WORKSPACE_DIR": "${workspaceFolder}"
+  }
+}
+```
+
+同时手动清理 `C:\Users\tianshangpengyuyan\papers` 下的旧文件。
+
+### ✅ 验证结果
+- ✅ 编译通过
+- ✅ 三层下载路径均增加内容验证（tar MIME + PDF MIME + PDF 魔数）
+- ✅ 使用绝对路径 `e:\Research\Scientify_for_TRAE\papers` 下载成功，文件真实存在（含 .tex）
+
+---
+
 ## [v3.2.4] - 2026-08-03
 
 ### 🐛 Bug 修复
@@ -254,6 +299,6 @@
 
 ---
 
-**最后更新**: 2026-08-03  
-**当前版本**: v3.2.4  
+**最后更新**: 2026-08-06  
+**当前版本**: v3.2.5  
 **维护者**: AI Assistant & User

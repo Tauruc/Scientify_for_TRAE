@@ -58,7 +58,9 @@ npm install -g .
     "scientify-tools": {
       "command": "scientify-mcp",
       "args": [],
-      "env": {}
+      "env": {
+        "TRAE_WORKSPACE_DIR": "${workspaceFolder}"
+      }
     }
   }
 }
